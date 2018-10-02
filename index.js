@@ -20,6 +20,7 @@
         headersSelector: '.js-accordion__header',
         panelsSelector: '.js-accordion__panel',
         buttonsSelector: 'button.js-accordion__header',
+        buttonsClass: '.js-accordion__header',
         buttonsGeneratedContent: 'text',
         button: $('<button></button>', {
             class: 'js-accordion__header',
@@ -113,7 +114,7 @@
 
     Accordion.prototype.focusButtonEventHandler = function(e) {
         var $target = $(e.target);
-        var $button = $target.is('button') ? $target : $target.closest('button');
+        var $button = $target.is(this.options.buttonsClass) ? $target : $target.closest(this.options.buttonsClass);
 
         $(this.options.buttonsSelector, this.$wrapper).attr({
             'aria-selected': 'false'
@@ -126,7 +127,7 @@
 
     Accordion.prototype.clickButtonEventHandler = function(e) {
         var $target = $(e.target);
-        var $button = $target.is('button') ? $target : $target.closest('button');
+        var $button = $target.is(this.options.buttonsClass) ? $target : $target.closest(this.options.buttonsClass);
         var $panel = $('#' + $button.attr('aria-controls'));
 
         this.$buttons.attr('aria-selected', 'false');
@@ -156,12 +157,19 @@
 
     Accordion.prototype.keydownButtonEventHandler = function(e) {
         var $target = $(e.target);
-        var $button = $target.is('button') ? $target : $target.closest('button');
+        var $button = $target.is(this.options.buttonsClass) ? $target : $target.closest(this.options.buttonsClass);
         var $firstButton = this.$buttons.first();
         var $lastButton = this.$buttons.last();
         var index = this.$buttons.index($button);
 
         $target = null;
+
+        var clickKeys = [13, 32]; // keycodes ENTER, SPACEBAR
+        if ($.inArray(e.keyCode, clickKeys) >= 0 && !e.ctrlKey) {
+            $button.trigger('click');
+
+            return;
+        }
 
         var k = this.options.direction === 'ltr' ? {
             prev: [38, 37], // up & left
